@@ -18,6 +18,7 @@
 \usepackage{pst-node}
 \usepackage{pst-tree}
 
+\newcommand{\pref}[1]{(\ref{#1})}
 
 \begin{document}
     
@@ -55,10 +56,11 @@ sentence and tell us whether it is grammatical or not, and if it is, show an RRG
 
 In the first section below we will briefly describe the morphology
 and syntax of Faroese in general. The description is based on~\citep{faroese}.
-We will then move on to describe middle constructions
-in particular in the second section. After this we will describe the design
-of the lexicon in section 3 and the parser itself in section 4. We will finish off
-in sections 5 and 6 by testing the parser.
+We will then move on to describe middle constructions in Faroese in the second section.
+In Section 2 we will also analyse middle constructions in terms of
+Role and Reference Grammar (RRG). After this we will 
+describe the design of the lexicon in Section 3 and the parser itself in Section 4.
+We will finish off in Sections 5 and 6 by testing the parser.
 
 
 \section{Faroese Morphology and Syntax}
@@ -579,7 +581,7 @@ accusative--accusative, most of which are not found in Faroese~\citep[262-263]{f
 
 \section{Middle Constructions in Faroese}
 
-Above we briefly touched on middle forms in Faroese, but since they are the main subject of this paper we need to look deeper into them.
+Above we briefly touched on middle forms in Faroese, but since they are the main subject of this paper we need to look closer at them.
 
 We mentioned that the middle constructions are formed by adding \emph{-st} to various inflectional forms of the verb,
 but let's now look further at the origin and semantics of the middle constructions.
@@ -590,9 +592,9 @@ which corresponds to the reflexive \emph{seg} in modern Faroese. Thus Old Norse 
 In modern Faroese this evolved to \emph{setast} (the Old Norse verb \emph{setja} became \emph{seta} in
 modern Faroese)~\citep[277]{faroese}.
 
-As we mentioned in the previous section, the middle forms in various can have a wide variety of meanings,
-i.e. the semantics varies according to what verb is used. We now mention the various semantic
-meanings with accompanying glossed examples (we add \emph{+st} to the gloss to 
+As we mentioned in the previous section, the \emph{-st}-forms can have a wide variety of meanings,
+i.e. the semantics vary according to what verb is used, and we'll now look at the various meanings
+while giving some glossed examples (we add \emph{+st} to the gloss to 
 indicate an \emph{-st}-form)~\citep[277-278]{faroese}.
 
 \subsection*{Reflexive meaning}
@@ -640,16 +642,210 @@ indicate an \emph{-st}-form)~\citep[277-278]{faroese}.
 \subsection*{Middle (or passive) meaning}
 
 \begin{exe}
-    \ex
+    \ex\label{middles}
     \begin{xlist}
-        \item \gll Íbúð ynskist til leigu.\\
+        \ex\label{middles1} \gll Íbúð ynskist til leigu.\\
         apartment wish+st.\Prs{} to rent\\
         \trans 'Apartment for rent is sought.'\\
-        \item \gll Hon hoyrdist syngja langa leið.\\
+        \ex\label{middles2} \gll Bókin seldist væl.\\
+        book-\Def{} sell+st.\Pst{} well\\
+        \trans 'The book sold well.'\\
+        \ex\label{middles3} \gll Her skal eitt hús byggjast.\\
+        here shall a house build+st.\Prs{}\\
+        \trans 'A house is to be build here.'\\
+        \ex\label{middles4} \gll Hon hoyrdist syngja langa leið.\\
         she {hear}+st.\Pst{} sing long way\\
         \trans 'She was heard singing from a distance.'
+        \ex\label{middles5} \gll Hann brendist illa.\\
+        he burn+st.\Pst{} badly\\
+        \trans 'He was badly burnt.'\\
+        \ex\label{middles6} \gll Bókin fæst ikki.\\
+        book-\Def{} get+st.\Prs{} not\\
+        \trans 'It is impossible to get the book.'\\
+        \ex\label{middles7} \gll Dyrnar opnaðust knappliga.\\
+        door-\Def.\Pl{} open+st.\Pl.\Pst{} suddenly\\
+        \trans 'The doors suddenly opened.'\\
     \end{xlist}
 \end{exe}
+
+These last examples is what corresponds most closely to middles in other languages
+including English. An important difference to note between middle forms like the ones
+in example~\pref{middles} and regular passives is that the former are non-agentive while
+the latter are agentive. The agent is normally understood (and can be expressed with
+a prepositional phrase, but this is frequently not done) from a regular passive, but not from the middle.
+It is even considered ungrammatical to express an agent in middle constructions. We'll
+mention a couple of examples illustrating the contrast between a middle and a regular passive:
+\begin{exe}
+    \ex\label{middle_passive1}
+    \begin{xlist}
+        \ex \gll * Bókin seldist av H. N. Jacobsens Bókahandli.\\
+        {} book-\Def{} sell+st.\Pst{} by H. N. Jacobsen's bookstore\\
+        \ex \gll Bókin varð seld av H. N. Jacobsens Bókahandli.\\
+        book-\Def{} was sell.\Pst{} by H. N. Jacobsen's bookstore\\ 
+        \trans 'The book was sold by H. N. Jacobsen's bookstore.'\\
+    \end{xlist}
+    \ex\label{middle_passive2}
+    \begin{xlist}
+        \ex \gll * Jóhanna brendist av óvinum sínum.\\
+        {} Johanna burn+st.\Pst{} by enemy.\Pl{} her.\Refl\\
+        \ex \gll Jóhanna varð brend av óvinum sínum.\\
+        Johanna was burn.\Pst.\Ptcp{} by enemy.\Pl{} her.\Refl\\ 
+        \trans 'Johanna was burned by her enemies.'\\
+    \end{xlist}
+\end{exe}
+
+Here we see that it is not possible to specify an agent in a middle form in the way we
+can do with a regular passive construction.
+
+Finally we can mention that it can be difficult to predict what type of meaning an
+\emph{-st}-form of a given verb will have. For instance the same \emph{-st}-form can
+have two different meanings:
+\begin{exe}
+    \ex\label{kennast}
+    \begin{xlist}
+        \item \gll Tey kennast væl.\\
+        they know+st.\Prs{} well\\
+        \trans 'They know each other well.'
+        \item \gll Tey kennast á málinum.\\
+        they know+st.\Prs{} on language-\Def\\
+        \trans 'They can be recognised by the way they speak.'
+    \end{xlist}
+\end{exe}
+
+\subsection{Role and Reference Grammar}
+
+Before we continue on to the lexicon let's analyse the middle constructions in example~\pref{middles}
+because this will be the basis for the rules in our parser.
+
+\subsubsection*{Example~\pref{middles1}: Íbúð ynskist til leigu}
+
+This sentence only consists of a single clause. The main verb, the predicate, in the clause
+is \emph{-st}-form \emph{ynskist}, which is based on the verb \emph{ynskja} 'wish'. 
+In RRG terms we call this the nucleus (\Nuc) of the clause.
+The nucleus has two arguments (\Arg), the noun \emph{íbúð} 'apartment' and the prepositional
+phrase \emph{til leigu} 'for rent'. The nucleus together with these two arguments form the core (\Core)
+of the clause. We use a tree to give a quick overview of the sentence structure:
+
+\begin{exe}
+    \ex
+    \psset{treesep=2ex, levelsep=3em}
+    \SENTENCE{
+        \CLAUSE{
+        \CORE{
+            \ARG{\WORD(NP){Íbúð}}
+            \NUC{ynskist}
+            \ARG{\FanEnd{PP}{til leigu}}
+        }
+        }
+}
+\end{exe}
+
+For the subsequent examples we won't write out the analysis like we have done above, but
+just illustrate the structure with a diagram, i.e. and RRG tree.
+
+\subsubsection*{Example~\pref{middles2}: Bókin seldist væl}
+
+\begin{exe}
+    \ex
+    \psset{treesep=2ex, levelsep=3em}
+    \SENTENCE{
+        \CLAUSE{
+        \CORE{
+            \ARG{\WORD(NP){Bókin}}
+            \NUC{seldist}
+            \ARG{\WORD(AdvP){væl}}
+        }
+        }
+}
+\end{exe}
+
+\subsubsection*{Example~\pref{middles3}: Her skal eitt hús byggjast}
+
+\begin{exe}
+    \ex
+    \psset{treesep=2ex, levelsep=3em}
+    \TOP{
+        \lPERIPH{4}{PP}{\WORD{Her}}
+    \SENTENCE{
+        \CLAUSE{
+        \CORE{
+            \NUC{skal}
+            \ARG{\WORD(NP){eitt hús}}
+            \NUC{byggjast}
+        }
+        }
+    }
+    }
+\dolinks
+\end{exe}
+
+\subsubsection*{Example~\pref{middles4}: Hon hoyrdist syngja langa leið}
+
+\begin{exe}
+    \ex
+    \psset{treesep=2ex, levelsep=3em}
+    \SENTENCE{
+        \CLAUSE{
+        \CORE{
+            \ARG{\WORD(NP){Hon}}
+            \NUC{hoyrdist}
+        }
+        \CORE{
+            \NUC{syngja}
+            \ARG{\FanEnd{AdjP}{langa leið}}
+        }
+        }
+}
+\end{exe}
+
+\subsubsection*{Example~\pref{middles5}: Hann brendist illa}
+
+\begin{exe}
+    \ex
+    \psset{treesep=2ex, levelsep=3em}
+    \SENTENCE{
+        \CLAUSE{
+        \CORE{
+            \ARG{\WORD(NP){Hann}}
+            \NUC{brendist}
+            \ARG{\WORD(AdvP){illa}}
+        }
+        }
+}
+\end{exe}
+
+\subsubsection*{Example~\pref{middles6}: Bókin fæst ikki}
+
+\begin{exe}
+    \ex
+    \psset{treesep=2ex, levelsep=3em}
+    \SENTENCE{
+        \CLAUSE{
+        \CORE{
+            \ARG{\WORD(NP){Bókin}}
+            \NUC{fæst}
+            \ARG{\WORD(AdvP){ikki}}
+        }
+        }
+}
+\end{exe}
+
+\subsubsection*{Example~\pref{middles7}: Dyrnar opnaðust knappliga}
+
+\begin{exe}
+    \ex
+    \psset{treesep=2ex, levelsep=3em}
+    \SENTENCE{
+        \CLAUSE{
+        \CORE{
+            \ARG{\WORD(NP){Dyrnar}}
+            \NUC{opnaðust}
+            \ARG{\WORD(AdvP){knappliga}}
+        }
+        }
+}
+\end{exe}
+
 
 
 
