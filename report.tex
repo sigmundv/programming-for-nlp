@@ -104,7 +104,12 @@
 
 \begin{abstract}
     In this article we describe a parser for Middle Constructions
-    in Faroese built on Role and Reference Grammar (RRG).
+    in Faroese built on Role and Reference Grammar (RRG). Before we describe parser we
+    describe morphology and syntax in Faroese, and middle constructions in particular.
+    We analyse middle constructions in terms of the RRG framework and build up a feature
+    based grammar for use with NLTK's parsing functions. We show that by building up the
+    grammar carefully we are able to use NLTK's parsing functions to parse middle constructions
+    in Faroese, particularly middle constructions with passive reading.
     \keywords{RRG, Faroese, Middle Constructions, Parsing}
 \end{abstract}
 
@@ -115,13 +120,13 @@ In this paper we describe the architecture and implementation of a Role and Refe
 parser for middle constructions in Faroese. The parser will be able to take a so-called "middle"
 sentence and tell us whether it is grammatical or not, and if it is, show an RRG tree for it.
 
-In the first section below we will briefly describe the morphology
+In the section 2 below we will briefly describe the morphology
 and syntax of Faroese in general. The description is based on~\citep{faroese}.
 We will then move on to describe middle constructions in Faroese in the second section.
-In Section 2 we will also analyse middle constructions in terms of
+In Section 3 we will also analyse middle constructions in terms of
 Role and Reference Grammar (RRG). After this we will 
-describe the design of the lexicon in Section 3 and the parser itself in Section 4.
-We will finish off in Sections 5 and 6 by testing the parser.
+describe the design of the lexicon in Section 4 and the parser itself in Section 5.
+We will finish off in Sections 6 by testing the parser on some test sentences.
 
 
 \section{Faroese Morphology and Syntax}
@@ -747,7 +752,7 @@ mention a couple of examples illustrating the contrast between a middle and a re
     \end{xlist}
     \ex\label{middle_passive2}
     \begin{xlist}
-        \ex \gll * Jóhanna brendist av óvinum sínum.\\
+        \ex\label{johanna1} \gll * Jóhanna brendist av óvinum sínum.\\
         {} Johanna burn+st.\Pst{} by enemy.\Pl{} her.\Refl\\
         \ex \gll Jóhanna varð brend av óvinum sínum.\\
         Johanna was burn.\Pst.\Ptcp{} by enemy.\Pl{} her.\Refl\\ 
@@ -931,8 +936,6 @@ prepositions, adjectives, determiners and adverbs. The features we will record a
     \ex gender; \M{} (masculine), \F{} (feminine), or \N{} (neuter) 
     \ex number; \Sg{} (singular) or \Pl{} (plural)
     \ex case; \Nom{} (nominative), \Acc{} (accusative), \Dat{} (dative), or \Gen{} (genitive)
-    \ex noun type; \Count{} (countable noun) or \Mass{} (mass noun)
-    \ex verb type; \Fin-{} (non-finite) or \Fin+{} (finite)
     \ex tense; \Pst{} (past) or \Prs{} (present) 
     \ex logical structure
     \end{xlist}
@@ -1505,8 +1508,6 @@ features as keys and the feature values as values, e.g.:
         gender='f',
         number='sg',
         case='nom',
-        nounType='count',
-        verbType='na',
         tense='na',
         ls='na')
 
@@ -1517,12 +1518,10 @@ features as keys and the feature values as values, e.g.:
     [ gender       = 'f'     ]
     [ ls           = 'na'    ]
     [ middle       = 'na'    ]
-    [ nounType     = 'count' ]
     [ number       = 'sg'    ]
     [ person       = 3       ]
     [ pos          = 'n'     ]
     [ tense        = 'na'    ]
-    [ verbType     = 'na'    ]
     [ word         = 'íbúð'  ]
 \end{lstlisting}
 
@@ -1542,8 +1541,6 @@ To cover these agreement patterns we define an agreement feature like this:
             middle="na",
             agreement=fs1,
             case='nom',
-            nounType='count',
-            verbType='na',
             tense='na',
             ls='na')
     
@@ -1557,10 +1554,8 @@ To cover these agreement patterns we define an agreement feature like this:
         [ definiteness = 'def-'            ]
         [ ls           = 'na'              ]
         [ middle       = 'na'              ]
-        [ nounType     = 'count'           ]
         [ pos          = 'n'               ]
         [ tense        = 'na'              ]
-        [ verbType     = 'na'              ]
         [ word         = 'íbúð'            ]
 \end{lstlisting}
 
@@ -1582,20 +1577,241 @@ Since we use the NLTK parser with the feature based grammar from the previous se
 the amount of code is minimal, hence we display it all here in Listing~\pref{parser}.
 
 \lstinputlisting[caption={An RRG parser for middle constructions
-                             in Faroese implemented in Python.},label={parser}]{code/parse.py}
+                             in Faroese implemented in Python.},
+                             label={parser}]{code/parse.py}
 
 
 \section{Testing of the Parser}
 
+We list the sentences mentioned in Example~\pref{middles} on page~\pageref{middles}
+and run them through the parser shown in Listing~\ref{parser}. The sentences and
+the result of the parsing are shown below.
 
+\lstinputlisting[caption={The sentences used to test the parser},label=sentences]{code/sentences.txt}
+
+\begin{lstlisting}[caption={The parse trees returned by the parser.}, label=results]
+    ==============================
+    Íbúð ynskist til leigu
+    ==============================
+    (SENT[]
+      (CLAUSE[]
+        (CORE[agr=[gdr='f', num='sg', per=3], case='dat']
+          (NP[agr=[gdr='f', num='sg', per=3], case='dat']
+            (N[agr=[gdr='f', num='sg', per=3], case='dat'] íbúð))
+          (NUC[agr=[num='sg', per=3]]
+            (PRED[agr=[num='sg', per=3]]
+              (V[agr=[num='sg', per=3], tns='prs'] ynskist)))
+          (PP[agr=[gdr='f', num='sg', per=3], case='dat']
+            (Prep[] til)
+            (NP[agr=[gdr='f', num='sg', per=3], case='dat']
+              (N[agr=[gdr='f', num='sg', per=3], case='dat'] leigu))))))
+    (SENT[]
+      (CLAUSE[]
+        (CORE[agr=[gdr='f', num='sg', per=3], case='acc']
+          (NP[agr=[gdr='f', num='sg', per=3], case='acc']
+            (N[agr=[gdr='f', num='sg', per=3], case='acc'] íbúð))
+          (NUC[agr=[num='sg', per=3]]
+            (PRED[agr=[num='sg', per=3]]
+              (V[agr=[num='sg', per=3], tns='prs'] ynskist)))
+          (PP[agr=[gdr='f', num='sg', per=3], case='acc']
+            (Prep[] til)
+            (NP[agr=[gdr='f', num='sg', per=3], case='acc']
+              (N[agr=[gdr='f', num='sg', per=3], case='acc'] leigu))))))
+    
+    ==============================
+    Bókin seldist væl
+    ==============================
+    (SENT[]
+      (CLAUSE[]
+        (CORE[agr=[gdr='f', num='sg', per=3], case='nom']
+          (NP[agr=[gdr='f', num='sg', per=3], case='nom']
+            (N[agr=[gdr='f', num='sg', per=3], case='nom'] bókin))
+          (NUC[agr=[num='sg', per=3]]
+            (PRED[agr=[num='sg', per=3]]
+              (V[agr=[num='sg', per=3], tns='pst'] seldist)))
+          (AdvP[] væl))))
+    
+    ==============================
+    Her skal eitt hús byggjast
+    ==============================
+    (SENT[]
+      (CLAUSE[]
+        (Periphery[] (AdvP[] her))
+        (CORE[agr=[gdr='n', num='sg', per=3], case='nom']
+          (NUC[agr=[num='sg', per=3]]
+            (PRED[agr=[num='sg', per=3]]
+              (V[agr=[num='sg', per=3], tns='prs'] skal)))
+          (NP[agr=[gdr='n', num='sg', per=3], case='nom']
+            (Det[agr=[gdr='n', num='sg', per=3], case='nom'] eitt)
+            (N[agr=[gdr='n', num='sg', per=3], case='nom'] hús))
+          (NUC[agr=[num='sg', per=3]]
+            (PRED[agr=[num='sg', per=3]]
+              (V[agr=[num='sg', per=3], tns='prs'] byggjast))))))
+    (SENT[]
+      (CLAUSE[]
+        (Periphery[] (AdvP[] her))
+        (CORE[agr=[gdr='n', num='sg', per=3], case='acc']
+          (NUC[agr=[num='sg', per=3]]
+            (PRED[agr=[num='sg', per=3]]
+              (V[agr=[num='sg', per=3], tns='prs'] skal)))
+          (NP[agr=[gdr='n', num='sg', per=3], case='acc']
+            (Det[agr=[gdr='n', num='sg', per=3], case='acc'] eitt)
+            (N[agr=[gdr='n', num='sg', per=3], case='acc'] hús))
+          (NUC[agr=[num='sg', per=3]]
+            (PRED[agr=[num='sg', per=3]]
+              (V[agr=[num='sg', per=3], tns='prs'] byggjast))))))
+    
+    ==============================
+    Hon hoyrdist syngja langa leið
+    ==============================
+    (SENT[]
+      (CLAUSE[]
+        (CORE[agr=[gdr='f', num='sg', per=3], case='nom']
+          (NP[agr=[gdr='f', num='sg', per=3], case='nom']
+            (PRO[agr=[gdr='f', num='sg', per=3], case='nom'] hon))
+          (NUC[agr=[num='sg', per=3]]
+            (PRED[agr=[num='sg', per=3]]
+              (V[agr=[num='sg', per=3], tns='pst'] hoyrdist))))
+        (CORE[agr=[gdr='f', num='sg', per=3], case='acc']
+          (NUC[agr=[num='sg', per=3]]
+            (PRED[agr=[num='sg', per=3]]
+              (V[agr=[num='sg', per=3], tns='prs'] syngja)))
+          (AdjP[agr=[gdr='f', num='sg', per=3], case='acc']
+            (Adj[agr=[gdr='f', num='sg', per=3], case='acc'] langa)
+            (NP[agr=[gdr='f', num='sg', per=3], case='acc']
+              (N[agr=[gdr='f', num='sg', per=3], case='acc'] leið))))))
+    
+    ==============================
+    Hann brendist illa
+    ==============================
+    (SENT[]
+      (CLAUSE[]
+        (CORE[agr=[gdr='m', num='sg', per=3], case='nom']
+          (NP[agr=[gdr='m', num='sg', per=3], case='nom']
+            (PRO[agr=[gdr='m', num='sg', per=3], case='nom'] hann))
+          (NUC[agr=[num='sg', per=3]]
+            (PRED[agr=[num='sg', per=3]]
+              (V[agr=[num='sg', per=3], tns='pst'] brendist)))
+          (AdvP[] illa))))
+    (SENT[]
+      (CLAUSE[]
+        (CORE[agr=[gdr='m', num='sg', per=3], case='acc']
+          (NP[agr=[gdr='m', num='sg', per=3], case='acc']
+            (PRO[agr=[gdr='m', num='sg', per=3], case='acc'] hann))
+          (NUC[agr=[num='sg', per=3]]
+            (PRED[agr=[num='sg', per=3]]
+              (V[agr=[num='sg', per=3], tns='pst'] brendist)))
+          (AdvP[] illa))))
+    
+    ==============================
+    Bókin fæst ikki
+    ==============================
+    (SENT[]
+      (CLAUSE[]
+        (CORE[agr=[gdr='f', num='sg', per=3], case='nom']
+          (NP[agr=[gdr='f', num='sg', per=3], case='nom']
+            (N[agr=[gdr='f', num='sg', per=3], case='nom'] bókin))
+          (NUC[agr=[num='sg', per=3]]
+            (PRED[agr=[num='sg', per=3]]
+              (V[agr=[num='sg', per=3], tns='prs'] fæst)))
+          (AdvP[] ikki))))
+    
+    ==============================
+    Dyrnar opnaðust knappliga
+    ==============================
+    (SENT[]
+      (CLAUSE[]
+        (CORE[agr=[gdr='f', num='pl', per=3], case='nom']
+          (NP[agr=[gdr='f', num='pl', per=3], case='nom']
+            (N[agr=[gdr='f', num='pl', per=3], case='nom'] dyrnar))
+          (NUC[agr=[num='pl', per=3]]
+            (PRED[agr=[num='pl', per=3]]
+              (V[agr=[num='pl', per=3], tns='pst'] opnaðust)))
+          (AdvP[] knappliga))))
+    (SENT[]
+      (CLAUSE[]
+        (CORE[agr=[gdr='f', num='pl', per=3], case='acc']
+          (NP[agr=[gdr='f', num='pl', per=3], case='acc']
+            (N[agr=[gdr='f', num='pl', per=3], case='acc'] dyrnar))
+          (NUC[agr=[num='pl', per=3]]
+            (PRED[agr=[num='pl', per=3]]
+              (V[agr=[num='pl', per=3], tns='pst'] opnaðust)))
+          (AdvP[] knappliga))))
+\end{lstlisting}
+
+Here we see that the sentences have been correctly parsed, albeit some of them return
+two parse trees, because the object noun can be found in two different cases; we do not
+enough information to determine the case of the noun.
+
+Since all of the sentences were parsed correctly we conclude that they are all grammatical.
+Let's now add a sentence that be know is ungrammatical, e.g the sentence in~\pref{johanna1}
+on page~\pageref{johanna1}.
+In order to do this we need to add the words occurring in the sentence to our feature based grammar.
+The words are the following:
+\begin{table}[!htbp]
+    \centering
+    \caption{Categorisation of the words appearing in~\pref{johanna1}.}
+    \begin{tabular}{rl}
+        \toprule
+        Noun & óvinum\\
+        Proper noun & Jóhanna\\
+        Preposition & av\\
+        Verb & brendist\\
+        Pronoun & sínum\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+We add this sentence to a new list of ungrammatical sentences:
+
+\lstinputlisting[caption={The ungrammatical sentences used to test the parser},label=sentences_ungrammatical]{code/sentences_ungrammatical.txt}
+
+Then we add the following lexical productions to our grammar:
+\begin{lstlisting}
+    N[case=dat, agr=[gdr=m, per=3, num=pl]] -> 'óvinum'
+    PropN[case=nom] -> 'jóhanna'
+    Prep -> 'til' | 'av'
+    V[agr=[num='sg', per=3], tns='pst'] -> 'brendist'
+    PRO[case=dat, agr=[gdr=m, per=3, num=sg]] -> 'sínum'
+\end{lstlisting}
+
+And the following lines to our Python code:
+\begin{lstlisting}
+    ungrammatical_sentences = read_sentences("sentences_ungrammatical.txt")
+    for sentence in ungrammatical_sentences:
+        parse_sentence(sentence, trace)
+\end{lstlisting}
+
+When we run this we see that no parse tree is returned, which means that the sentence
+is not grammatical (we have cut out the output from parsing of all the grammatical sentences):
+\begin{lstlisting}
+[sigmund@oc8351072275 code]$ python3 parse.py
+...............
+...............
+...............
+==============================
+Jóhanna brendist av óvinum sínum
+==============================
+[sigmund@oc8351072275 code]$
+\end{lstlisting}
 
 
 \section{Conclusion}
 
+We have given an overview of Faroese morphology and syntax, then looked closer at middle
+constructions and analysed middle forms with a passive reading using the Role and Reference Grammar (RRG) framework.
+The RRG framework has then been used to build a feature based grammar, which can be plugged
+into NLTK's chart parser, and we finally saw that it is able to parse the middle constructions
+with a passive reading correctly. We have also shown that ungrammatical sentences are not parsed
+correctly, hence our parser is doing what we set out to do.
+
+
 \subsection{Future Work}
 
+Looking a future work, a first step could be to expand the parser to handle the other readings
+of middle in Faroese, and ultimately parse any Faroese sentence construction into its constituent parts.\\\\
 
-\clearpage
+
 \bibliographystyle{lin-v2/lin}    
 \bibliography{references}
 

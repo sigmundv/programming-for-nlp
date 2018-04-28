@@ -37,6 +37,10 @@ def parse_sentence(sentence, trace=0):
 if __name__ == "__main__":
     trace = 0  # define the trace level; we set it to 0 to only return the final parse tree
     sentences = read_sentences("sentences.txt")  # read in the sentences from the file sentences.txt
+    ungrammatical_sentences = read_sentences("sentences_ungrammatical.txt")
     
     for sentence in sentences:  # loop through the sentences and return the parse tree
+        parse_sentence(sentence, trace)
+
+    for sentence in ungrammatical_sentences:
         parse_sentence(sentence, trace)

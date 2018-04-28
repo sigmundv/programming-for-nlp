@@ -6,25 +6,25 @@ CLAUSE -> CORE
 CLAUSE -> Periphery CORE
 CLAUSE -> CORE CORE
 
-CORE[case=?c, agreement=?a] -> NP[case=?c, agreement=?a] NUC[agreement=?a] AdvP
-CORE[case=?c, agreement=?a] -> AdvP NUC[agreement=?a] NP[case=?c, agreement=?a]
-CORE[case=?c, agreement=?a] -> NP[case=?c, agreement=?a] NUC[agreement=?a] PP[case=?c, agreement=?a]
-CORE[case=?c, agreement=?a] -> NUC[agreement=?a] NP[case=?c, agreement=?a] NUC[agreement=?a]
-CORE[case=?c, agreement=?a] -> NP[case=?c, agreement=?a] NUC[agreement=?a]
-CORE[case=?c, agreement=?a] -> NUC[agreement=?a] NP[case=?c, agreement=?a]
-CORE[case=?c, agreement=?a] -> NUC[agreement=?a] AdjP[case=?c, agreement=?a]
+CORE[case=?c, agr=?a] -> NP[case=?c, agr=?a] NUC[agr=?a] AdvP
+CORE[case=?c, agr=?a] -> AdvP NUC[agr=?a] NP[case=?c, agr=?a]
+CORE[case=?c, agr=?a] -> NP[case=?c, agr=?a] NUC[agr=?a] PP[case=?c, agr=?a]
+CORE[case=?c, agr=?a] -> NUC[agr=?a] NP[case=?c, agr=?a] NUC[agr=?a]
+CORE[case=?c, agr=?a] -> NP[case=?c, agr=?a] NUC[agr=?a]
+CORE[case=?c, agr=?a] -> NUC[agr=?a] NP[case=?c, agr=?a]
+CORE[case=?c, agr=?a] -> NUC[agr=?a] AdjP[case=?c, agr=?a]
 
-NP[case=?c, agreement=?a] -> Det[case=?c, agreement=?a] N[case=?c, agreement=?a]
-NP[case=?c, agreement=?a] -> N[case=?c, agreement=?a]
-NP[case=?c, agreement=?a] -> PropN[case=?c]
-NP[case=?c, agreement=?a] -> PRO[case=?c, agreement=?a]
+NP[case=?c, agr=?a] -> Det[case=?c, agr=?a] N[case=?c, agr=?a]
+NP[case=?c, agr=?a] -> N[case=?c, agr=?a]
+NP[case=?c, agr=?a] -> PropN[case=?c]
+NP[case=?c, agr=?a] -> PRO[case=?c, agr=?a]
 
-NUC[agreement=?a] -> PRED[agreement=?a]
-PRED[agreement=?a] -> V[agreement=?a]
+NUC[agr=?a] -> PRED[agr=?a]
+PRED[agr=?a] -> V[agr=?a]
 
-PP[case=?c, agreement=?a] -> Prep NP[case=?c, agreement=?a]
+PP[case=?c, agr=?a] -> Prep NP[case=?c, agr=?a]
 
-AdjP[case=?c, agreement=?a] -> Adj[case=?c, agreement=?a] NP[case=?c, agreement=?a]
+AdjP[case=?c, agr=?a] -> Adj[case=?c, agr=?a] NP[case=?c, agr=?a]
 
 Periphery -> AdvP
 
@@ -32,45 +32,51 @@ Periphery -> AdvP
 ## Lexical Productions
 
 # Prepositions 
-Prep -> 'til'
+Prep -> 'til' | 'av'
 
 # Determiners
-Det[case=nom, agreement=[gender=n, person=3, number=sg]] -> 'eitt'
-Det[case=acc, agreement=[gender=n, person=3, number=sg]] -> 'eitt'
+Det[case=nom, agr=[gdr=n, per=3, num=sg]] -> 'eitt'
+Det[case=acc, agr=[gdr=n, per=3, num=sg]] -> 'eitt'
 
 # Pronouns
-PRO[case=nom, agreement=[gender=f, person=3, number=sg]] -> 'hon'
-PRO[case=acc, agreement=[gender=f, person=3, number=sg]] -> 'hana'
-PRO[case=dat, agreement=[gender=f, person=3, number=sg]] -> 'henni'
-PRO[case=gen, agreement=[gender=f, person=3, number=sg]] -> 'hennara'
-PRO[case=nom, agreement=[gender=m, person=3, number=sg]] -> 'hann'
-PRO[case=acc, agreement=[gender=m, person=3, number=sg]] -> 'hann'
-PRO[case=dat, agreement=[gender=m, person=3, number=sg]] -> 'honum'
-PRO[case=gen, agreement=[gender=m, person=3, number=sg]] -> 'hansara'
+PRO[case=nom, agr=[gdr=f, per=3, num=sg]] -> 'hon'
+PRO[case=acc, agr=[gdr=f, per=3, num=sg]] -> 'hana'
+PRO[case=dat, agr=[gdr=f, per=3, num=sg]] -> 'henni'
+PRO[case=gen, agr=[gdr=f, per=3, num=sg]] -> 'hennara'
+PRO[case=nom, agr=[gdr=m, per=3, num=sg]] -> 'hann'
+PRO[case=acc, agr=[gdr=m, per=3, num=sg]] -> 'hann'
+PRO[case=dat, agr=[gdr=m, per=3, num=sg]] -> 'honum'
+PRO[case=gen, agr=[gdr=m, per=3, num=sg]] -> 'hansara'
+PRO[case=dat, agr=[gdr=m, per=3, num=sg]] -> 'sínum'
 
 # Nouns
-N[case=nom, agreement=[gender=f, person=3, number=sg]] -> 'íbúð' | 'leið'
-N[case=acc, agreement=[gender=f, person=3, number=sg]] -> 'íbúð' | 'leigu' | 'leið'
-N[case=dat, agreement=[gender=f, person=3, number=sg]] -> 'íbúð' | 'leigu' | 'leið'
-N[case=nom, agreement=[gender=f, person=3, number=sg]] -> 'bókin'
-N[case=nom, agreement=[gender=n, person=3, number=sg]] -> 'hús'
-N[case=acc, agreement=[gender=n, person=3, number=sg]] -> 'hús'
-N[case=nom, agreement=[gender=f, person=3, number=pl]] -> 'dyrnar'
-N[case=acc, agreement=[gender=f, person=3, number=pl]] -> 'dyrnar'
+N[case=nom, agr=[gdr=f, per=3, num=sg]] -> 'íbúð' | 'leið'
+N[case=acc, agr=[gdr=f, per=3, num=sg]] -> 'íbúð' | 'leigu' | 'leið'
+N[case=dat, agr=[gdr=f, per=3, num=sg]] -> 'íbúð' | 'leigu' | 'leið'
+N[case=nom, agr=[gdr=f, per=3, num=sg]] -> 'bókin'
+N[case=nom, agr=[gdr=n, per=3, num=sg]] -> 'hús'
+N[case=acc, agr=[gdr=n, per=3, num=sg]] -> 'hús'
+N[case=nom, agr=[gdr=f, per=3, num=pl]] -> 'dyrnar'
+N[case=acc, agr=[gdr=f, per=3, num=pl]] -> 'dyrnar'
+N[case=dat, agr=[gdr=m, per=3, num=pl]] -> 'óvinum'
+
+# Proper nouns
+PropN[case=nom] -> 'jóhanna'
 
 # Verbs
-V[agreement=[number='sg', person=3], tense='prs'] -> 'ynskist'
-V[agreement=[number='sg', person=3], tense='pst'] -> 'seldist'
-V[agreement=[number='sg', person=3], tense='prs'] -> 'skal'
-V[agreement=[number='sg', person=3], tense='prs'] -> 'byggjast'
-V[agreement=[number='sg', person=3], tense='pst'] -> 'hoyrdist'
-V[agreement=[number='sg', person=3], tense='prs'] -> 'syngja'
-V[agreement=[number='sg', person=3], tense='pst'] -> 'brendist'
-V[agreement=[number='sg', person=3], tense='prs'] -> 'fæst'
-V[agreement=[number='pl', person=3], tense='pst'] -> 'opnaðust'
+V[agr=[num='sg', per=3], tns='prs'] -> 'ynskist'
+V[agr=[num='sg', per=3], tns='pst'] -> 'seldist'
+V[agr=[num='sg', per=3], tns='prs'] -> 'skal'
+V[agr=[num='sg', per=3], tns='prs'] -> 'byggjast'
+V[agr=[num='sg', per=3], tns='pst'] -> 'hoyrdist'
+V[agr=[num='sg', per=3], tns='prs'] -> 'syngja'
+V[agr=[num='sg', per=3], tns='pst'] -> 'brendist'
+V[agr=[num='sg', per=3], tns='prs'] -> 'fæst'
+V[agr=[num='pl', per=3], tns='pst'] -> 'opnaðust'
+V[agr=[num='sg', per=3], tns='pst'] -> 'brendist'
 
 # Adverbs
 AdvP -> 'ikki' | 'illa' | 'væl' | 'her' | 'knappliga'
 
 # Adjectives
-Adj[case=acc, agreement=[gender=f, person=3, number='sg']] -> 'langa'
+Adj[case=acc, agr=[gdr=f, per=3, num='sg']] -> 'langa'
