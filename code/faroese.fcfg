@@ -1,0 +1,76 @@
+% start SENT
+
+## Grammar Productions
+SENT -> CLAUSE
+CLAUSE -> CORE
+CLAUSE -> Periphery CORE
+CLAUSE -> CORE CORE
+
+CORE[case=?c, agreement=?a] -> NP[case=?c, agreement=?a] NUC[agreement=?a] AdvP
+CORE[case=?c, agreement=?a] -> AdvP NUC[agreement=?a] NP[case=?c, agreement=?a]
+CORE[case=?c, agreement=?a] -> NP[case=?c, agreement=?a] NUC[agreement=?a] PP[case=?c, agreement=?a]
+CORE[case=?c, agreement=?a] -> NUC[agreement=?a] NP[case=?c, agreement=?a] NUC[agreement=?a]
+CORE[case=?c, agreement=?a] -> NP[case=?c, agreement=?a] NUC[agreement=?a]
+CORE[case=?c, agreement=?a] -> NUC[agreement=?a] NP[case=?c, agreement=?a]
+CORE[case=?c, agreement=?a] -> NUC[agreement=?a] AdjP[case=?c, agreement=?a]
+
+NP[case=?c, agreement=?a] -> Det[case=?c, agreement=?a] N[case=?c, agreement=?a]
+NP[case=?c, agreement=?a] -> N[case=?c, agreement=?a]
+NP[case=?c, agreement=?a] -> PropN[case=?c]
+NP[case=?c, agreement=?a] -> PRO[case=?c, agreement=?a]
+
+NUC[agreement=?a] -> PRED[agreement=?a]
+PRED[agreement=?a] -> V[agreement=?a]
+
+PP[case=?c, agreement=?a] -> Prep NP[case=?c, agreement=?a]
+
+AdjP[case=?c, agreement=?a] -> Adj[case=?c, agreement=?a] NP[case=?c, agreement=?a]
+
+Periphery -> AdvP
+
+
+## Lexical Productions
+
+# Prepositions 
+Prep -> 'til'
+
+# Determiners
+Det[case=nom, agreement=[gender=n, person=3, number=sg]] -> 'eitt'
+Det[case=acc, agreement=[gender=n, person=3, number=sg]] -> 'eitt'
+
+# Pronouns
+PRO[case=nom, agreement=[gender=f, person=3, number=sg]] -> 'hon'
+PRO[case=acc, agreement=[gender=f, person=3, number=sg]] -> 'hana'
+PRO[case=dat, agreement=[gender=f, person=3, number=sg]] -> 'henni'
+PRO[case=gen, agreement=[gender=f, person=3, number=sg]] -> 'hennara'
+PRO[case=nom, agreement=[gender=m, person=3, number=sg]] -> 'hann'
+PRO[case=acc, agreement=[gender=m, person=3, number=sg]] -> 'hann'
+PRO[case=dat, agreement=[gender=m, person=3, number=sg]] -> 'honum'
+PRO[case=gen, agreement=[gender=m, person=3, number=sg]] -> 'hansara'
+
+# Nouns
+N[case=nom, agreement=[gender=f, person=3, number=sg]] -> 'íbúð' | 'leið'
+N[case=acc, agreement=[gender=f, person=3, number=sg]] -> 'íbúð' | 'leigu' | 'leið'
+N[case=dat, agreement=[gender=f, person=3, number=sg]] -> 'íbúð' | 'leigu' | 'leið'
+N[case=nom, agreement=[gender=f, person=3, number=sg]] -> 'bókin'
+N[case=nom, agreement=[gender=n, person=3, number=sg]] -> 'hús'
+N[case=acc, agreement=[gender=n, person=3, number=sg]] -> 'hús'
+N[case=nom, agreement=[gender=f, person=3, number=pl]] -> 'dyrnar'
+N[case=acc, agreement=[gender=f, person=3, number=pl]] -> 'dyrnar'
+
+# Verbs
+V[agreement=[number='sg', person=3], tense='prs'] -> 'ynskist'
+V[agreement=[number='sg', person=3], tense='pst'] -> 'seldist'
+V[agreement=[number='sg', person=3], tense='prs'] -> 'skal'
+V[agreement=[number='sg', person=3], tense='prs'] -> 'byggjast'
+V[agreement=[number='sg', person=3], tense='pst'] -> 'hoyrdist'
+V[agreement=[number='sg', person=3], tense='prs'] -> 'syngja'
+V[agreement=[number='sg', person=3], tense='pst'] -> 'brendist'
+V[agreement=[number='sg', person=3], tense='prs'] -> 'fæst'
+V[agreement=[number='pl', person=3], tense='pst'] -> 'opnaðust'
+
+# Adverbs
+AdvP -> 'ikki' | 'illa' | 'væl' | 'her' | 'knappliga'
+
+# Adjectives
+Adj[case=acc, agreement=[gender=f, person=3, number='sg']] -> 'langa'
