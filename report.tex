@@ -10,6 +10,8 @@
 \usepackage{amssymb}
 \usepackage{tipa}
 
+\usepackage{listings}
+
 \usepackage[noglossaries]{leipzig}
 \usepackage{gb4e}
 \noautomath
@@ -18,7 +20,66 @@
 \usepackage{pst-node}
 \usepackage{pst-tree}
 
+\usepackage{booktabs}
+\usepackage{hyperref}
+
+\usepackage[section]{placeins}
+
+\let\Oldsubsection\subsection
+\renewcommand{\subsection}{\FloatBarrier\Oldsubsection}
+
+\let\Oldsubsubsection\subsubsection
+\renewcommand{\subsubsection}{\FloatBarrier\Oldsubsubsection}
+
+
 \newcommand{\pref}[1]{(\ref{#1})}
+\newleipzig{mid}{mid}{middle}
+\newleipzig{count}{count}{count\-able noun}
+\newleipzig{mass}{mass}{mass noun}
+\newleipzig{fin}{fin}{finite verb}
+\newleipzig{pro}{pro}{pro\-noun}
+\newleipzig{prep}{prep}{pre\-position}
+
+
+\usepackage{color}
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\lstset{
+    backgroundcolor=\color{white},
+    basicstyle=\footnotesize\ttfamily,
+    belowskip=2em,
+    breaklines=true,
+    captionpos=t,
+    commentstyle=\color{mygreen},
+    extendedchars=true,
+    frame=single,
+    keepspaces=true,
+    keywordstyle=\color{blue},
+    language=Python,
+    literate=
+  {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+  {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+  {à}{{\`a}}1 {è}{{\`e}}1 {ì}{{\`i}}1 {ò}{{\`o}}1 {ù}{{\`u}}1
+  {À}{{\`A}}1 {È}{{\'E}}1 {Ì}{{\`I}}1 {Ò}{{\`O}}1 {Ù}{{\`U}}1
+  {ä}{{\"a}}1 {ë}{{\"e}}1 {ï}{{\"i}}1 {ö}{{\"o}}1 {ü}{{\"u}}1
+  {Ä}{{\"A}}1 {Ë}{{\"E}}1 {Ï}{{\"I}}1 {Ö}{{\"O}}1 {Ü}{{\"U}}1
+  {â}{{\^a}}1 {ê}{{\^e}}1 {î}{{\^i}}1 {ô}{{\^o}}1 {û}{{\^u}}1
+  {Â}{{\^A}}1 {Ê}{{\^E}}1 {Î}{{\^I}}1 {Ô}{{\^O}}1 {Û}{{\^U}}1
+  {œ}{{\oe}}1 {Œ}{{\OE}}1 {æ}{{\ae}}1 {Æ}{{\AE}}1 {ß}{{\ss}}1
+  {ű}{{\H{u}}}1 {Ű}{{\H{U}}}1 {ő}{{\H{o}}}1 {Ő}{{\H{O}}}1
+  {ç}{{\c c}}1 {Ç}{{\c C}}1 {ø}{{\o}}1 {å}{{\r a}}1 {Å}{{\r A}}1
+  {€}{{\euro}}1 {£}{{\pounds}}1 {«}{{\guillemotleft}}1
+  {»}{{\guillemotright}}1 {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1
+  {ð}{{\dh}}1 {Ð}{{\Dh}}1,
+  numbers=left,
+  numbersep=5pt,
+  numberstyle=\tiny\color{mygray},
+  rulecolor=\color{black},
+  stringstyle=\color{mymauve}
+}
+
 
 \begin{document}
     
@@ -714,8 +775,8 @@ have two different meanings:
 
 \subsection{Role and Reference Grammar}
 
-Before we continue on to the lexicon let's analyse the middle constructions in example~\pref{middles}
-because this will be the basis for the rules in our parser.
+Before we continue on to the structure of the lexicon let's analyse the middle constructions in example~\pref{middles}
+in terms of Role and Reference Grammar (RRG), because this will be the basis for the rules in our parser.
 
 \subsubsection*{Example~\pref{middles1}: Íbúð ynskist til leigu}
 
@@ -741,7 +802,7 @@ of the clause. We use a tree to give a quick overview of the sentence structure:
 \end{exe}
 
 For the subsequent examples we won't write out the analysis like we have done above, but
-just illustrate the structure with a diagram, i.e. and RRG tree.
+just illustrate the structure with a diagram, i.e. an RRG tree.
 
 \subsubsection*{Example~\pref{middles2}: Bókin seldist væl}
 
@@ -849,15 +910,692 @@ just illustrate the structure with a diagram, i.e. and RRG tree.
 
 
 
-\section{Implementation of the Lexicon}
+\section{Implementation of the Lexicon and Grammar}
+
+In this section we will first specify a lexicon to be used with the parser,
+and based on this lexicon we build up a feature based grammar that we can use
+with the parsers in NLTK (Natural Language ToolKit).
+
+\subsection{Lexicon}
+
+For our parser we need to define a number of features for nouns, pronouns, verbs,
+prepositions, adjectives, determiners and adverbs. The features we will record are as follows:
+\begin{exe}
+    \ex\label{features}
+    \begin{xlist}
+    \ex word; the word itself in the form it is found in the text
+    \ex part of speech type; noun (n), verb (v), etc.
+    \ex definiteness; \Def-{} / \Def+{}
+    \ex "middleness"; \Mid-{} / \Mid+{}
+    \ex person; \First{} (first), \Second{} (second), or \Third{} (third)
+    \ex gender; \M{} (masculine), \F{} (feminine), or \N{} (neuter) 
+    \ex number; \Sg{} (singular) or \Pl{} (plural)
+    \ex case; \Nom{} (nominative), \Acc{} (accusative), \Dat{} (dative), or \Gen{} (genitive)
+    \ex noun type; \Count{} (countable noun) or \Mass{} (mass noun)
+    \ex verb type; \Fin-{} (non-finite) or \Fin+{} (finite)
+    \ex tense; \Pst{} (past) or \Prs{} (present) 
+    \ex logical structure
+    \end{xlist}
+\end{exe}
+
+Obviously, not all of these features will be relevant for all types of words, and in that case
+we will write \emph{NA} for that feature. In the lexicon we give here we'll include
+the words appearing in the examples in~\pref{middles}, and before we get to the lexicon itself
+we list the words in their base form:
+\begin{table}[!htbp]
+    \begin{tabular}{rl}
+        {nouns} & íbúð, leiga, bók, hús, leið, dyr \\
+        {determiners} & ein \\
+        {pronouns} & hon, hann \\
+        {verbs} & ynskja, selja, skula, byggja, hoyra, syngja, brenna, fáa, opna \\
+        {prepositions} & til \\
+        {adjectives} & langur \\
+        {adverbs} & væl, illa, ikki, her, knappliga \\
+    \end{tabular}
+\end{table}
+
+Now we will move on and give each word as it appears in the examples in~\pref{middles}
+and define the features as stated above in Example~\pref{features}.
+
+\subsubsection{Nouns}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the noun \emph{íbúð}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & íbúð\\
+        \midrule
+        POS type & n\\
+        \Def & \Def-\\
+        \Mid & NA\\
+        Person & \Third\\
+        Gender & \F{}\\
+        Number & \Sg{}\\
+        Case & \Nom/\Acc/\Dat{}\\
+        Tense & NA\\
+        Logical structure & NA\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the noun \emph{leigu}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & leigu\\
+        \midrule
+        POS type & n\\
+        \Def & \Def-\\
+        \Mid & NA\\
+        Person & \Third\\
+        Gender & \F{}\\
+        Number & \Sg{}\\
+        Case & \Acc/\Dat/\Gen{} \\
+        Tense & NA\\
+        Logical structure & NA\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the noun \emph{bókin}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & bókin\\
+        \midrule
+        POS type & n\\
+        \Def & \Def+\\
+        \Mid & NA\\
+        Person & \Third\\
+        Gender & \F{}\\
+        Number & \Sg{}\\
+        Case & \Nom{} \\
+        Tense & NA\\
+        Logical structure & NA\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the noun \emph{hús}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & hús\\
+        \midrule
+        POS type & n\\
+        \Def & \Def-\\
+        \Mid & NA\\
+        Person & \Third\\
+        Gender & \N{}\\
+        Number & \Sg{}\\
+        Case & \Nom/\Acc{} \\
+        Tense & NA\\
+        Logical structure & NA\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the noun \emph{leið}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & leið\\
+        \midrule
+        POS type & n\\
+        \Def & \Def-\\
+        \Mid & NA\\
+        Person & \Third\\
+        Gender & \F{}\\
+        Number & \Sg{}\\
+        Case & \Nom/\Acc/\Dat{} \\
+        Tense & NA\\
+        Logical structure & NA\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[!htbp]
+    \centering
+    \caption{The lexical features of the noun \emph{dyrnar}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & dyrnar\\
+        \midrule
+        POS type & n\\
+        \Def & \Def+\\
+        \Mid & NA\\
+        Person & \Third\\
+        Gender & \F{}\\
+        Number & \Pl{}\\
+        Case & \Nom/\Acc{} \\
+        Tense & NA\\
+        Logical structure & NA\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+
+\subsubsection{Determiners}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the determiner \emph{eitt}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & eitt\\
+        \midrule
+        POS type & \Det\\
+        \Def & \Def-\\
+        \Mid & NA\\
+        Person & \Third\\
+        Gender & \N{}\\
+        Number & \Sg{}\\
+        Case & \Nom/\Acc{} \\
+        Tense & NA\\
+        Logical structure & NA\\
+        \toprule
+    \end{tabular}
+\end{table}
+
+
+\subsubsection{Pronouns}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the pronoun \emph{hon}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & hon\\
+        \midrule
+        POS type & \Pro\\
+        \Def & \Def{+/-}\\
+        \Mid & NA\\
+        Person & \Third\\
+        Gender & \F{}\\
+        Number & \Sg{}\\
+        Case & \Nom \\
+        Tense & NA\\
+        Logical structure & NA\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the pronoun \emph{hann}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & hann\\
+        \midrule
+        POS type & \Pro\\
+        \Def & \Def{+/-}\\
+        \Mid & NA\\
+        Person & \Third\\
+        Gender & \M{}\\
+        Number & \Sg{}\\
+        Case & \Nom/\Acc \\
+        Noun type & NA\\
+        Verb type & NA\\
+        Tense & NA\\
+        Logical structure & NA\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\subsubsection{Verbs}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the verb \emph{ynskist}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & ynskist\\
+        \midrule
+        POS type & v\\
+        \Def & NA\\
+        \Mid & \Mid+\\
+        Person & \Third\\
+        Gender & NA\\
+        Number & \Sg{}\\
+        Case & NA \\
+        Tense & \Prs{}\\
+        Logical structure & \pred{wish}($\varnothing$,y)\\
+    \end{tabular}
+\end{table}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the verb \emph{seldist}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & seldist\\
+        \midrule
+        POS type & v\\
+        \Def & NA\\
+        \Mid & \Mid+\\
+        Person & \Third\\
+        Gender & NA\\
+        Number & \Sg{}\\
+        Case & NA \\
+        Tense & \Pst{}\\
+        Logical structure & \prddo($\varnothing$,[\pred{sell}(y)])\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the verb \emph{skal}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & skal\\
+        \midrule
+        POS type & \Aux{}\\
+        \Def & NA\\
+        \Mid & \Mid-\\
+        Person & \Third\\
+        Gender & NA\\
+        Number & \Sg{}\\
+        Case & NA \\
+        Noun type & NA\\
+        Verb type & \Fin+\\
+        Tense & \Prs{}\\
+        Logical structure & \pred{be}(x,y)\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the verb \emph{byggjast}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & byggjast\\
+        \midrule
+        POS type & v\\
+        \Def & NA\\
+        \Mid & \Mid+\\
+        Person & \Third\\
+        Gender & NA\\
+        Number & \Sg{}\\
+        Case & NA \\
+        Noun type & NA\\
+        Verb type & \Fin+\\
+        Tense & \Prs{}\\
+        Logical structure & \prddo($\varnothing$,[\pred{build}(y)])\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the verb \emph{hoyrdist}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & hoyrdist\\
+        \midrule
+        POS type & v\\
+        \Def & NA\\
+        \Mid & \Mid+\\
+        Person & \Third\\
+        Gender & NA\\
+        Number & \Sg{}\\
+        Case & NA \\
+        Tense & \Pst{}\\
+        Logical structure & \pred{hear}($\varnothing$,y)\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the verb \emph{syngja}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & syngja\\
+        \midrule
+        POS type & v\\
+        \Def & NA\\
+        \Mid & \Mid-\\
+        Person & \Third\\
+        Gender & NA\\
+        Number & \Sg{}\\
+        Case & NA \\
+        Tense & \Prs{}\\
+        Logical structure & \prddo(x,[\pred{sing}(x,(y))])\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the verb \emph{brendist}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & brendist\\
+        \midrule
+        POS type & v\\
+        \Def & NA\\
+        \Mid & \Mid+\\
+        Person & \Third\\
+        Gender & NA\\
+        Number & \Sg{}\\
+        Case & NA \\
+        Tense & \Pst{}\\
+        Logical structure & \prddo($\varnothing$,[\pred{burn}(y)])\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the verb \emph{fæst}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & fæst\\
+        \midrule
+        POS type & v\\
+        \Def & NA\\
+        \Mid & \Mid+\\
+        Person & \Third\\
+        Gender & NA\\
+        Number & \Sg{}\\
+        Case & NA \\
+        Tense & \Prs{}\\
+        Logical structure & \pred{get}(x,y)\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the verb \emph{opnaðust}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & opnaðust\\
+        \midrule
+        POS type & v\\
+        \Def & NA\\
+        \Mid & \Mid+\\
+        Person & \Third\\
+        Gender & NA\\
+        Number & \Pl{}\\
+        Case & NA \\
+        Noun type & NA\\
+        Verb type & \Fin+\\
+        Tense & \Pst{}\\
+        Logical structure & \prddo($\varnothing$,[\pred{open}(y)])\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+
+\subsubsection{Prepositions}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the preposition \emph{til}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & til\\
+        \midrule
+        POS type & \Prep\\
+        \Def & NA\\
+        \Mid & NA\\
+        Person & NA\\
+        Gender & NA\\
+        Number & NA\\
+        Case & NA \\
+        Tense & NA\\
+        Logical structure & \pred{to}(x)\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\subsubsection{Adjectives}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the adjective \emph{langa}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & langa\\
+        \midrule
+        POS type & \Adj\\
+        \Def & \Def-\\
+        \Mid & NA\\
+        Person & \Third\\
+        Gender & \F{}\\
+        Number & \Sg\\
+        Case & \Acc \\
+        Tense & NA\\
+        Logical structure & NA\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\subsubsection{Adverbs}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the adverb \emph{væl}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & væl\\
+        \midrule
+        POS type & \Adv\\
+        \Def & NA\\
+        \Mid & NA\\
+        Person & NA\\
+        Gender & NA\\
+        Number & NA\\
+        Case & NA \\
+        Tense & NA\\
+        Logical structure & NA\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the adverb \emph{illa}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & illa\\
+        \midrule
+        POS type & \Adv\\
+        \Def & NA\\
+        \Mid & NA\\
+        Person & NA\\
+        Gender & NA\\
+        Number & NA\\
+        Case & NA \\
+        Tense & NA\\
+        Logical structure & NA\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the adverb \emph{ikki}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & ikki\\
+        \midrule
+        POS type & \Adv\\
+        \Def & NA\\
+        \Mid & NA\\
+        Person & NA\\
+        Gender & NA\\
+        Number & NA\\
+        Case & NA \\
+        Tense & NA\\
+        Logical structure & NA\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the adverb \emph{her}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & her\\
+        \midrule
+        POS type & \Adv\\
+        \Def & NA\\
+        \Mid & NA\\
+        Person & NA\\
+        Gender & NA\\
+        Number & NA\\
+        Case & NA \\
+        Tense & NA\\
+        Logical structure & NA\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}
+    \centering
+    \caption{The lexical features of the adverb \emph{knappliga}.}
+    \begin{tabular}{rl}
+        \toprule
+        Word & knappliga\\
+        \midrule
+        POS type & \Adv\\
+        \Def & NA\\
+        \Mid & NA\\
+        Person & NA\\
+        Gender & NA\\
+        Number & NA\\
+        Case & NA \\
+        Tense & NA\\
+        Logical structure & NA\\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+
+\subsection{Grammar}
+
+We will now build up a feature based grammar for use with the parser. For this we will use
+a so-called feature structure in NLTK, which basically is a Python dictionary with the
+features as keys and the feature values as values, e.g.:
+\begin{lstlisting}[caption={A feature structure showing lexical features for the word \emph{íbúð}.}]
+    import nltk
+    
+    fs = nltk.FeatStruct(
+        word='íbúð',
+        pos='n',
+        definiteness="def-",
+        middle="na",
+        person=3,
+        gender='f',
+        number='sg',
+        case='nom',
+        nounType='count',
+        verbType='na',
+        tense='na',
+        ls='na')
+
+    print(fs)
+
+    [ case         = 'nom'   ]
+    [ definiteness = 'def-'  ]
+    [ gender       = 'f'     ]
+    [ ls           = 'na'    ]
+    [ middle       = 'na'    ]
+    [ nounType     = 'count' ]
+    [ number       = 'sg'    ]
+    [ person       = 3       ]
+    [ pos          = 'n'     ]
+    [ tense        = 'na'    ]
+    [ verbType     = 'na'    ]
+    [ word         = 'íbúð'  ]
+\end{lstlisting}
+
+
+Faroese nouns agree with verbs in gender, person and number and with other nouns in
+gender, person, number and case. Nouns agree with adjectives in case, number and gender.
+To cover these agreement patterns we define an agreement feature like this:
+\begin{lstlisting}[caption={A feature structure showing the word \emph{íbúð} with an \emph{agreement} feature.}]
+        import nltk
+        
+        fs1 = nltk.FeatStruct(gender='f', person=3, number='sg')
+        
+        fs2 = nltk.FeatStruct(
+            word='íbúð',
+            pos='n',
+            definiteness="def-",
+            middle="na",
+            agreement=fs1,
+            case='nom',
+            nounType='count',
+            verbType='na',
+            tense='na',
+            ls='na')
+    
+        print(fs2)
+    
+        [                [ gender = 'f'  ] ]
+        [ agreement    = [ number = 'sg' ] ]
+        [                [ person = 3    ] ]
+        [                                  ]
+        [ case         = 'nom'             ]
+        [ definiteness = 'def-'            ]
+        [ ls           = 'na'              ]
+        [ middle       = 'na'              ]
+        [ nounType     = 'count'           ]
+        [ pos          = 'n'               ]
+        [ tense        = 'na'              ]
+        [ verbType     = 'na'              ]
+        [ word         = 'íbúð'            ]
+\end{lstlisting}
+
+Now we will move on to define the grammar itself in a file stating first the rules for
+the middle constructions we have discussed in previous sections, then the lexicon in
+terms of feature structures as discussed in this section. Below we show the finalised
+grammar, complete will all grammar productions and lexical productions that cover the
+middle constructions listed in Example~\pref{middles} on page~\pageref{middles}.
+
+\lstinputlisting[caption={A feature based grammar for parsing 
+                            of middle constructions in Faroese}]{code/faroese.fcfg}
+
+
 
 \section{Implementation of the Parser}
 
-\section{Analysis of Test Data}
+The parser itself will utilise the chart parser that comes with NLTK as described in~\citep[Chapter 9]{nltk}.
+Since we use the NLTK parser with the feature based grammar from the previous section,
+the amount of code is minimal, hence we display it all here in Listing~\pref{parser}.
+
+\lstinputlisting[caption={An RRG parser for middle constructions
+                             in Faroese implemented in Python.},label={parser}]{code/parse.py}
+
 
 \section{Testing of the Parser}
 
 
+
+
+\section{Conclusion}
+
+\subsection{Future Work}
+
+
+\clearpage
 \bibliographystyle{lin-v2/lin}    
 \bibliography{references}
 
